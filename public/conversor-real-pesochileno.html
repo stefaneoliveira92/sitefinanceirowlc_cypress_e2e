@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor Real para Peso Chileno</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e86850; /* Vermelho claro */
+        }
+        .container {
+            text-align: center;
+            padding: 50px;
+            background-color: #FFFFFF; /* Branco */
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 600px; /* Aumento da largura */
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #FF6666; /* Vermelho mais escuro */
+            border-radius: 8px;
+            font-size: 16px; /* Aumento do tamanho da fonte */
+            color: #000000; /* Preto */
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #FF6666; /* Vermelho mais escuro */
+            color: #000000; /* Preto */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 16px; /* Aumento do tamanho da fonte */
+            display: block;
+            margin: 0 auto; /* Centraliza horizontalmente */
+        }
+        button:disabled {
+            background-color: #CCCCCC; /* Cinza claro */
+            cursor: not-allowed;
+        }
+        p {
+            color: #000000; /* Preto */
+            font-size: 14px; /* Aumento do tamanho da fonte */
+            margin-right: 10px;
+            margin-left: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        #resultado {
+            font-size: 40px; /* Aumento do tamanho da fonte para o resultado */
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            cursor: pointer; /* Torna o valor clicável */
+        }
+        #resultado:hover {
+            text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+            text-decoration-color: black; /* Define a cor da linha sublinhada */
+        }
+        h2 {
+            font-size: 20px; /* Aumento do tamanho da fonte para o título */
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .copy-info {
+            font-size: 12px;
+            color: #666666; /* Cinza */
+            display: none; /* Inicialmente oculto */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>R$ - CLP</h2>
+        <p>Cotação: CLP 155</p>
+        <input type="text" id="valorReais" placeholder="R$ 0,00" maxlength="20" style="width: 200px" onkeydown="if(event.keyCode==13) converter()" oninput="validarValor()">
+        <button onclick="converter()">Converter</button>
+        <p id="resultado" onclick="copiarValor()"></p> <!-- Adicionado o evento de clique diretamente ao valor convertido -->
+        <p class="copy-info">Clique no valor para copiá-lo para a área de transferência e depois colar diretamente no receptivo (Reservame).</p>
+        <br>
+        <button id="novaConversao" style="display: none;" onclick="novaConversao()">Nova Conversão</button>
+    </div>
+
+    <script>
+        function validarValor() {
+            // Obter o elemento input
+            var inputElement = document.getElementById("valorReais"); // Corrigido para "valorReais"
+
+            // Obter o valor atual do input
+            var valor = inputElement.value;
+
+            // Remover caracteres não numéricos, exceto ponto e vírgula
+            valor = valor.replace(/[^0-9,.]/g, '');
+
+            // Substituir vírgulas extras por um único ponto
+            valor = valor.replace(/(,)(?=.*\1)/g, '');
+
+            // Substituir vírgula por ponto para permitir a entrada de valores decimais
+            valor = valor.replace(',', '.');
+            
+            // Limitar o número de dígitos após a vírgula ou ponto para 2
+            var partes = valor.split('.');
+            if (partes[1] && partes[1].length > 2) {
+                partes[1] = partes[1].substring(0, 2);
+            }
+            valor = partes.join('.');
+
+            // Atualizar o valor do input com o valor validado
+            inputElement.value = valor;
+        }
+
+        function converter() {
+            var valorInput = document.getElementById("valorReais").value.trim();
+            if (valorInput === "") {
+                alert("Por favor, insira um valor antes de converter.");
+                return;
+            }
+
+            var valorReais = parseFloat(valorInput.replace("R$ ", "").replace(",", "."));
+            var cotacaowlc = 155;
+            var valorConvertido = valorReais * cotacaowlc;
+
+            // Arredonda o valor para cima e remove os centavos
+            valorConvertido = Math.ceil(valorConvertido);
+
+            // Atualiza o resultado com a formatação desejada
+            document.getElementById("resultado").innerHTML = '<span style="color: black;">CLP </span><span style="color: #008000;">' + valorConvertido.toLocaleString('pt-BR', {minimumFractionDigits: 0}) + '</span>';
+            document.querySelector(".copy-info").style.display = "block"; // Exibe o texto de informação
+            document.getElementById("novaConversao").style.display = "block";
+            document.getElementById("valorReais").disabled = true;
+            document.querySelector("button").disabled = true;
+        }
+
+        function copiarValor() {
+            var resultado = document.getElementById("resultado").textContent.replace(/\D/g,''); // Apenas números
+            var tempInput = document.createElement("input");
+            tempInput.value = resultado;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Valor copiado para a área de transferência!");
+        }
+
+        function novaConversao() {
+            document.getElementById("valorReais").value = "";
+            document.getElementById("resultado").textContent = "";
+            document.querySelector(".copy-info").style.display = "none"; // Oculta o texto de informação
+            document.getElementById("novaConversao").style.display = "none";
+            document.getElementById("valorReais").disabled = false;
+            document.querySelector("button").disabled = false;
+        }
+    </script>
+</body>
+</html>
